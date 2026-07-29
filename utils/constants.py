@@ -1,0 +1,14 @@
+from qtpy.QtGui import QColor
+
+PAGE_WIDTH = 2480
+PAGE_HEIGHT = 3508
+
+MIN_ZOOM = 0.10
+MAX_ZOOM = 8.00
+ZOOM_FACTOR = 1.15
+
+BACKGROUND_COLOR = QColor(45, 45, 45)
+PAGE_COLOR = QColor("white")
+
+PAGE_MARGIN = 64
+GRID_SIZE = 20
