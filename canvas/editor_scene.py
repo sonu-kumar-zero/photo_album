@@ -24,7 +24,7 @@ class EditorScene(QGraphicsScene):
             PageItem.WIDTH + margin * 2,
             PageItem.HEIGHT + margin * 2,
         )
-
+        
     @property
     def page(self) -> PageItem:
         return self._page

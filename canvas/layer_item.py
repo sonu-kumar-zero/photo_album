@@ -13,6 +13,7 @@ class LayerItem(QGraphicsObject):
     
     def __init__(
         self,
+        *,
         name: str,
         parent: QGraphicsItem | None = None
     ) -> None:

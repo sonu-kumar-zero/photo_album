@@ -2,6 +2,7 @@ from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QColor, QBrush, QPainter, QPen
 from PySide6.QtWidgets import QGraphicsObject
 
+from items.placeholder_item import PlaceholderItem
 from utils.constants import PAGE_HEIGHT, PAGE_WIDTH
 from canvas.layer_item import LayerItem
 
@@ -21,10 +22,20 @@ class PageItem(QGraphicsObject):
             self.HEIGHT,
         )
         
-        self._placeholder_layer = LayerItem("Placeholder")
-        self._text_layer = LayerItem("Text")
-        self._guide_layer = LayerItem("Guide")
-        self._overlay_layer = LayerItem("Overlay")
+        self._placeholder_layer = LayerItem(name="Placeholder", parent=self)
+        self._text_layer = LayerItem(name="Text", parent=self)
+        self._guide_layer = LayerItem(name="Guide", parent=self)
+        self._overlay_layer = LayerItem(name="Overlay", parent=self)
+        
+        self._placeholder = PlaceholderItem(
+            QRectF(
+                -150,
+                -100,
+                300,
+                200,
+            ),
+            self._placeholder_layer,
+        )
 
     def boundingRect(self) -> QRectF:
         """

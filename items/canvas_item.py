@@ -83,4 +83,3 @@ class CanvasItem(QGraphicsObject):
     @property
     def height(self) -> float:
         return self._rect.height()
-    
