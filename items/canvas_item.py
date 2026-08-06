@@ -74,6 +74,9 @@ class CanvasItem(QGraphicsObject):
         option,
         widget=None,
     ) -> None:
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.TextAntialiasing)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
         raise NotImplementedError
     
     @property
