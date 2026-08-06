@@ -11,7 +11,14 @@ class PageItem(QGraphicsRectItem):
     HEIGHT = PAGE_HEIGHT
 
     def __init__(self) -> None:
-        super().__init__(QRectF(0, 0, self.WIDTH, self.HEIGHT))
-
+        super().__init__(
+            QRectF(
+                -self.WIDTH / 2,
+                -self.HEIGHT / 2, 
+                self.WIDTH, 
+                self.HEIGHT
+                )
+            )
+        
         self.setBrush(QBrush(QColor("white")))
         self.setPen(QPen(QColor(220,220,220), 2))

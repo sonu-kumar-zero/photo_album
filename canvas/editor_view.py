@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
 from PySide6.QtCore import Qt, QPoint
-from qtpy.QtGui import QMouseEvent, QWheelEvent
+from qtpy.QtGui import QMouseEvent, QPainter, QWheelEvent
 
 from utils.constants import MIN_ZOOM, MAX_ZOOM, ZOOM_FACTOR
 
@@ -13,7 +13,9 @@ class EditorView(QGraphicsView):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.setRenderHints(
-            self.renderHints()
+            QPainter.RenderHint.Antialiasing
+            | QPainter.RenderHint.TextAntialiasing
+            | QPainter.RenderHint.SmoothPixmapTransform
         )
 
         self.setFrameShape(QGraphicsView.Shape.NoFrame)

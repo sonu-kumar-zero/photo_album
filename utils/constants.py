@@ -12,3 +12,5 @@ PAGE_COLOR = QColor("white")
 
 PAGE_MARGIN = 64
 GRID_SIZE = 20
+
+MARGIN = 1000
