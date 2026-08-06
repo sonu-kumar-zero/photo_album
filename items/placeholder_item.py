@@ -11,7 +11,7 @@ from qtpy.QtWidgets import (
 
 from items.canvas_item import CanvasItem
 from utils.icon_cache import IconCache
-from layouts.placeholder_layout import PlaceholderLayout
+from items.layouts.placeholder_layout import PlaceholderLayout
 
 class PlaceholderItem(CanvasItem):
     """

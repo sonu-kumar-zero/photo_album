@@ -1,9 +1,11 @@
 from __future__ import annotations
+from typing import Any
 
 from PySide6.QtCore import QRectF, QUuid
 from PySide6.QtGui import QColor, QPen, QPainter
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsObject
 
+from items.frames.selection_frame import SelectionFrame
 
 class CanvasItem(QGraphicsObject):
     """
@@ -52,6 +54,8 @@ class CanvasItem(QGraphicsObject):
 
         self._normal_pen = QPen(QColor(180, 180, 180), 1)
         self._selected_pen = QPen(QColor(0, 120, 215), 2)
+        
+        self._selection_frame = SelectionFrame(owner=self)
 
     @property
     def id(self) -> QUuid:
@@ -86,3 +90,10 @@ class CanvasItem(QGraphicsObject):
     @property
     def height(self) -> float:
         return self._rect.height()
+
+    def itemChange(self, change: QGraphicsItem.GraphicsItemChange, value: Any) -> Any:
+        if (
+            change == QGraphicsItem.GraphicsItemChange.ItemSelectedHasChanged
+        ):
+            self._selection_frame.setVisible(bool(value))
+        return super().itemChange(change, value)
