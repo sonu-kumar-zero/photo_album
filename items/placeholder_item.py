@@ -11,7 +11,7 @@ from qtpy.QtWidgets import (
 
 from items.canvas_item import CanvasItem
 from utils.icon_cache import IconCache
-
+from layouts.placeholder_layout import PlaceholderLayout
 
 class PlaceholderItem(CanvasItem):
     """
@@ -88,18 +88,15 @@ class PlaceholderItem(CanvasItem):
         #
         # Icon
         #
+        
+        layout = self._calculate_layout()
 
         icon = IconCache.pixmap(
             "image_placeholder",
             self.ICON_SIZE,
         )
 
-        icon_rect = QRectF(
-            rect.center().x() - self.ICON_SIZE / 2,
-            rect.center().y() - 60,
-            self.ICON_SIZE,
-            self.ICON_SIZE,
-        )
+        icon_rect = layout.icon_rect
 
         painter.drawPixmap(
             icon_rect.toRect(),
@@ -110,12 +107,7 @@ class PlaceholderItem(CanvasItem):
         # Title
         #
 
-        title_rect = QRectF(
-            rect.left() + 10,
-            icon_rect.bottom() + 10,
-            rect.width() - 20,
-            24,
-        )
+        title_rect = layout.title_rect
 
         title_font = QFont()
         title_font.setPointSize(12)
@@ -134,12 +126,7 @@ class PlaceholderItem(CanvasItem):
         # Subtitle
         #
 
-        subtitle_rect = QRectF(
-            rect.left() + 10,
-            title_rect.bottom() + 2,
-            rect.width() - 20,
-            20,
-        )
+        subtitle_rect = layout.subtitle_rect
 
         subtitle_font = QFont()
         subtitle_font.setPointSize(9)
@@ -170,3 +157,37 @@ class PlaceholderItem(CanvasItem):
         self.update()
 
         super().hoverLeaveEvent(event)
+        
+    def _calculate_layout(self) -> PlaceholderLayout:
+        """
+        Calculate the layout of the placeholder item.
+        """
+
+        rect = self.rect()
+
+        icon_rect = QRectF(
+            rect.center().x() - self.ICON_SIZE / 2,
+            rect.center().y() - 60,
+            self.ICON_SIZE,
+            self.ICON_SIZE,
+        )
+
+        title_rect = QRectF(
+            rect.left() + 10,
+            icon_rect.bottom() + 10,
+            rect.width() - 20,
+            24,
+        )
+
+        subtitle_rect = QRectF(
+            rect.left() + 10,
+            title_rect.bottom() + 2,
+            rect.width() - 20,
+            20,
+        )
+
+        return PlaceholderLayout(
+            icon_rect=icon_rect,
+            title_rect=title_rect,
+            subtitle_rect=subtitle_rect,
+        )
