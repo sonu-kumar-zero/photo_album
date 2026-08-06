@@ -1,7 +1,7 @@
 
 from PySide6.QtWidgets import QGraphicsScene
-from PySide6.QtGui import QColor
-from qtpy.QtCore import QRect, QRectF
+from PySide6.QtGui import QColor, QPen
+from qtpy.QtCore import QPointF, QRect, QRectF, Qt
 from qtpy.QtGui import QPainter
 
 from canvas.page_item import PageItem
@@ -40,9 +40,8 @@ class EditorScene(QGraphicsScene):
         )
         
         spacing = 20
-        dot_color = QColor(64, 64, 64)
-        painter.setPen(dot_color)
-        
+        major_spacing = spacing * 5
+                
         left = int(rect.left()) - (int(rect.left()) % spacing)
         top = int(rect.top()) - (int(rect.top()) % spacing)
         
@@ -53,6 +52,27 @@ class EditorScene(QGraphicsScene):
         while x <= right:
             y = top
             while y <= bottom:
+                
+                if x % major_spacing == 0 and y % major_spacing == 0:
+                    painter.setPen(QColor(200, 200, 200))
+                else:
+                    painter.setPen(QColor(100, 100, 100))
                 painter.drawPoint(x, y)
                 y += spacing
             x += spacing
+        
+        painter.setPen(QPen(QColor(255, 255, 255), 2))
+        size = 20
+        
+        painter.drawLine(-size, 0, size, 0)
+        painter.drawLine(0, -size, 0, size)
+        
+        radius = 5
+        painter.setBrush(QColor(255, 255, 255))
+        painter.setPen(Qt.PenStyle.NoPen)
+        
+        painter.drawEllipse(
+            QPointF(0, 0),
+            radius,
+            radius
+        )
