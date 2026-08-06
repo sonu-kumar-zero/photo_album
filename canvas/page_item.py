@@ -3,7 +3,7 @@ from PySide6.QtGui import QColor, QBrush, QPainter, QPen
 from PySide6.QtWidgets import QGraphicsObject
 
 from utils.constants import PAGE_HEIGHT, PAGE_WIDTH
-
+from canvas.layer_item import LayerItem
 
 class PageItem(QGraphicsObject):
     """Represents a single editable page."""
@@ -20,6 +20,11 @@ class PageItem(QGraphicsObject):
             self.WIDTH,
             self.HEIGHT,
         )
+        
+        self._placeholder_layer = LayerItem("Placeholder")
+        self._text_layer = LayerItem("Text")
+        self._guide_layer = LayerItem("Guide")
+        self._overlay_layer = LayerItem("Overlay")
 
     def boundingRect(self) -> QRectF:
         """
@@ -92,3 +97,19 @@ class PageItem(QGraphicsObject):
         )
 
         painter.drawRect(rect)
+        
+    @property
+    def placeholderLayer(self) -> LayerItem:
+        return self._placeholder_layer
+    
+    @property
+    def textLayer(self) -> LayerItem:
+        return self._text_layer
+    
+    @property
+    def guideLayer(self) -> LayerItem:
+        return self._guide_layer
+    
+    @property
+    def overlayLayer(self) -> LayerItem:
+        return self._overlay_layer
