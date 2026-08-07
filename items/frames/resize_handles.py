@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PySide6.QtCore import QRectF
+from PySide6.QtCore import QRectF, Qt
 from qtpy.QtGui import QBrush, QColor, QPainter, QPen
 from qtpy.QtWidgets import QGraphicsItem, QGraphicsObject, QStyleOptionGraphicsItem, QWidget
 
@@ -12,6 +12,20 @@ class ResizeHandle(QGraphicsObject):
     """
     
     SIZE = 10  # Size of the resize handle in pixels
+    
+    _CURSOR_MAP: dict[HandlePosition, Qt.CursorShape] = {
+        HandlePosition.TOP_LEFT: Qt.CursorShape.SizeFDiagCursor,
+        HandlePosition.BOTTOM_RIGHT: Qt.CursorShape.SizeFDiagCursor,
+
+        HandlePosition.TOP_RIGHT: Qt.CursorShape.SizeBDiagCursor,
+        HandlePosition.BOTTOM_LEFT: Qt.CursorShape.SizeBDiagCursor,
+
+        HandlePosition.LEFT: Qt.CursorShape.SizeHorCursor,
+        HandlePosition.RIGHT: Qt.CursorShape.SizeHorCursor,
+
+        HandlePosition.TOP_CENTER: Qt.CursorShape.SizeVerCursor,
+        HandlePosition.BOTTOM_CENTER: Qt.CursorShape.SizeVerCursor,
+    }
     
     def __init__(
         self,
@@ -39,18 +53,14 @@ class ResizeHandle(QGraphicsObject):
         
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         
+        pen = QPen(QColor(0, 120, 215), 1.5)
+        brush = QBrush(QColor("white"))
+
         if self._hovered:
-            brush = QBrush(QColor(255, 255, 255))
-        else:
-            brush = QBrush(QColor(230, 230, 230))
-            
-        pen = QPen(
-            QColor(0, 120, 215),
-            1.5
-        )
-        
-        painter.setBrush(brush)
+            brush = QBrush(QColor(245, 250, 255))
+
         painter.setPen(pen)
+        painter.setBrush(brush)
         
         painter.drawRect(
             self.boundingRect()
@@ -58,11 +68,13 @@ class ResizeHandle(QGraphicsObject):
         
     def hoverEnterEvent(self, event) -> None:
         self._hovered = True
+        self.setCursor(self._CURSOR_MAP[self._position])  # Change cursor based on handle position
         self.update()  # Trigger a repaint to reflect the hover state
         super().hoverEnterEvent(event)
     
     def hoverLeaveEvent(self, event) -> None:
         self._hovered = False
+        self.unsetCursor()  # Reset cursor to default
         self.update()  # Trigger a repaint to reflect the hover state
         super().hoverLeaveEvent(event)
         
