@@ -56,6 +56,7 @@ class CanvasItem(QGraphicsObject):
         self._selected_pen = QPen(QColor(0, 120, 215), 2)
         
         self._selection_frame = SelectionFrame(owner=self)
+        self._selection_frame.resizeRequested.connect(self.setRect)
 
     @property
     def id(self) -> QUuid:

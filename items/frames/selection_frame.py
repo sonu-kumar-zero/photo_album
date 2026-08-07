@@ -1,17 +1,23 @@
 from __future__ import annotations
 
-from PySide6.QtCore import QPointF, QRectF, Qt
+from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from qtpy.QtGui import QColor, QPainter, QPen
 from qtpy.QtWidgets import QGraphicsObject, QWidget, QStyleOptionGraphicsItem
 
 from items.frames.resize_handles import ResizeHandle
 from items.enums.handle_position import HandlePosition
+from items.interactions.resize_state import ResizeState
 
 class SelectionFrame(QGraphicsObject):
     """
     Draws the selection border around a canvasItem.
     Resize handles will be added later.
     """
+    
+    MIN_WIDTH = 50.0
+    MIN_HEIGHT = 50.0
+    
+    resizeRequested = Signal(QRectF)  # Signal emitted when the selection frame's rectangle changes
     
     def __init__(self,
         *,
@@ -30,13 +36,18 @@ class SelectionFrame(QGraphicsObject):
             handle = ResizeHandle(position=position, parent=self)
             self._handles[position] = handle
         
-    def boundingRect(self) -> QRectF:
-        parent = self.parentItem()
+        self._handles[HandlePosition.BOTTOM_RIGHT].resizeStarted.connect(self._onResizeStarted)
+        self._handles[HandlePosition.BOTTOM_RIGHT].resizeMoved.connect(self._onResizeMoved)
+        self._handles[HandlePosition.BOTTOM_RIGHT].resizeFinished.connect(self._onResizeFinished)
         
-        if parent is None:
+        self._resize_state: ResizeState | None = None
+        self._owner = owner
+        
+    def boundingRect(self) -> QRectF:
+        if self._owner is None:
             return QRectF()
         
-        return parent.boundingRect()
+        return self._owner.boundingRect()
     
     def paint(
         self,
@@ -45,8 +56,7 @@ class SelectionFrame(QGraphicsObject):
         widget: QWidget | None = None
     ) -> None:
         self._updateHandlePositions()        
-        parent = self.parentItem()
-        if parent is None:
+        if self._owner is None:
             return
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         
@@ -54,16 +64,14 @@ class SelectionFrame(QGraphicsObject):
         painter.setPen(self._pen)
         
         painter.drawRect(
-            parent.boundingRect()
+            self._owner.boundingRect()
         )
         
     def _updateHandlePositions(self) -> None:
-        parent = self.parentItem()
-        
-        if parent is None:
+        if self._owner is None:
             return
         
-        rect = parent.boundingRect()
+        rect = self._owner.boundingRect()
         
         left = rect.left()
         right = rect.right()
@@ -93,3 +101,45 @@ class SelectionFrame(QGraphicsObject):
     def updateGeometry(self) -> None:
         self._updateHandlePositions()
         self.update()
+        
+    def _onResizeStarted(
+        self,
+        handle: HandlePosition,
+        scene_pos: QPointF
+    )->None:    
+        if self._owner is None:
+            return
+        
+        self._resize_state = ResizeState(
+            handle=handle,
+            start_rect=self._owner.boundingRect(),
+            start_scene_pos=scene_pos
+        )
+    
+    def _onResizeMoved(
+        self,
+        handle: HandlePosition,
+        scene_pos: QPointF
+    ) -> None:
+        if self._resize_state is None:
+            return
+        
+        if self._resize_state.handle != HandlePosition.BOTTOM_RIGHT:
+            return
+        
+        delta = (
+            scene_pos - self._resize_state.start_scene_pos
+        )
+        
+        rect = QRectF(self._resize_state.start_rect)
+        
+        rect.setWidth(
+            max(self.MIN_WIDTH, rect.width() + delta.x())
+        )
+        rect.setHeight(
+            max(self.MIN_HEIGHT, rect.height() + delta.y())
+        )
+        self.resizeRequested.emit(rect)
+    
+    def _onResizeFinished(self) -> None:
+        self._resize_state = None

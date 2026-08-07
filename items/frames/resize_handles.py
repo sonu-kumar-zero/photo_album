@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from PySide6.QtCore import QRectF, Qt
+from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from qtpy.QtGui import QBrush, QColor, QPainter, QPen
 from qtpy.QtWidgets import QGraphicsItem, QGraphicsObject, QStyleOptionGraphicsItem, QWidget
 
@@ -27,6 +27,10 @@ class ResizeHandle(QGraphicsObject):
         HandlePosition.BOTTOM_CENTER: Qt.CursorShape.SizeVerCursor,
     }
     
+    resizeStarted = Signal(HandlePosition, QPointF)  # Signal emitted when a resize operation starts, passing the ResizeHandle instance
+    resizeMoved = Signal(HandlePosition, QPointF)  # Signal emitted when the mouse moves during a resize operation
+    resizeFinished = Signal()
+    
     def __init__(
         self,
         position: HandlePosition,
@@ -38,6 +42,8 @@ class ResizeHandle(QGraphicsObject):
         self._hovered = False  # Indicates whether the handle is currently hovered by the mouse
         
         self.setAcceptHoverEvents(True)  # Enable hover events for the handle
+        
+        self.setAcceptedMouseButtons(Qt.MouseButton.LeftButton)  # Accept only left mouse button events
         
     def boundingRect(self) -> QRectF:
         return QRectF(
@@ -82,4 +88,20 @@ class ResizeHandle(QGraphicsObject):
     def position(self) -> HandlePosition:
         return self._position
     
-        
+    def mousePressEvent(self, event) -> None:
+        self.resizeStarted.emit(
+            self._position,
+            event.scenePos()
+        )
+        event.accept()  # Accept the event to indicate that it has been handled
+    
+    def mouseMoveEvent(self, event) -> None:
+        self.resizeMoved.emit(
+            self._position,
+            event.scenePos()
+        )
+        event.accept()  # Accept the event to indicate that it has been handled
+
+    def mouseReleaseEvent(self, event) -> None:
+        self.resizeFinished.emit()
+        event.accept()  # Accept the event to indicate that it has been handled

@@ -20,6 +20,10 @@ class PlaceholderItem(CanvasItem):
 
     BORDER_RADIUS = 10.0
     ICON_SIZE = 48
+    
+    SHOW_SUBTITLE_HEIGHT = 140
+    SHOW_TITLE_HEIGHT = 80
+    SHOW_ICON_HEIGHT = 40
 
     def __init__(
         self,
@@ -56,6 +60,9 @@ class PlaceholderItem(CanvasItem):
             self.BORDER_RADIUS,
         )
 
+        painter.save()
+        painter.setClipPath(path)
+        
         #
         # Background
         #
@@ -91,54 +98,74 @@ class PlaceholderItem(CanvasItem):
         
         layout = self._calculate_layout()
 
-        icon = IconCache.pixmap(
-            "image_placeholder",
-            self.ICON_SIZE,
-        )
+        def draw_icon():
+            
+            icon_size = min(
+                self.ICON_SIZE,
+                rect.width()*0.25,
+                rect.height()*0.25,
+            )
 
-        icon_rect = layout.icon_rect
+            icon = IconCache.pixmap(
+                "image_placeholder",
+                size=int(icon_size),
+            )
 
-        painter.drawPixmap(
-            icon_rect.toRect(),
-            icon,
-        )
+            icon_rect = layout.icon_rect
+
+            painter.drawPixmap(
+                icon_rect.toRect(),
+                icon,
+            )
 
         #
         # Title
         #
+        def draw_title():
+            title_rect = layout.title_rect
 
-        title_rect = layout.title_rect
+            title_font = QFont()
+            title_font.setPointSize(12)
+            title_font.setBold(True)
 
-        title_font = QFont()
-        title_font.setPointSize(12)
-        title_font.setBold(True)
+            painter.setFont(title_font)
+            painter.setPen(QColor(70, 70, 70))
 
-        painter.setFont(title_font)
-        painter.setPen(QColor(70, 70, 70))
-
-        painter.drawText(
-            title_rect,
-            Qt.AlignmentFlag.AlignCenter,
-            self._text,
-        )
+            painter.drawText(
+                title_rect,
+                Qt.AlignmentFlag.AlignCenter,
+                self._text,
+            )
 
         #
         # Subtitle
         #
 
-        subtitle_rect = layout.subtitle_rect
+        def draw_subtitle():
+            subtitle_rect = layout.subtitle_rect
 
-        subtitle_font = QFont()
-        subtitle_font.setPointSize(9)
+            subtitle_font = QFont()
+            subtitle_font.setPointSize(9)
 
-        painter.setFont(subtitle_font)
-        painter.setPen(QColor(130, 130, 130))
+            painter.setFont(subtitle_font)
+            painter.setPen(QColor(130, 130, 130))
 
-        painter.drawText(
-            subtitle_rect,
-            Qt.AlignmentFlag.AlignCenter,
-            self._subtitle,
-        )
+            painter.drawText(
+                subtitle_rect,
+                Qt.AlignmentFlag.AlignCenter,
+                self._subtitle,
+            )
+                
+        if rect.height() >= self.SHOW_ICON_HEIGHT:
+            draw_icon()
+
+        if rect.height() >= self.SHOW_TITLE_HEIGHT:
+            draw_title()
+
+        if rect.height() >= self.SHOW_SUBTITLE_HEIGHT:
+            draw_subtitle()
+        
+        painter.restore()
 
     def hoverEnterEvent(
         self,
@@ -164,12 +191,18 @@ class PlaceholderItem(CanvasItem):
         """
 
         rect = self.rect()
+        
+        icon_size = min(
+                        self.ICON_SIZE,
+                        rect.width()*0.25,
+                        rect.height()*0.25,
+                    )
 
         icon_rect = QRectF(
-            rect.center().x() - self.ICON_SIZE / 2,
-            rect.center().y() - 60,
-            self.ICON_SIZE,
-            self.ICON_SIZE,
+            rect.center().x() - icon_size / 2,
+            rect.center().y() - icon_size / 2 - 10,
+            icon_size,
+            icon_size,
         )
 
         title_rect = QRectF(
