@@ -15,3 +15,5 @@ class ResizeState:
     start_rect: QRectF
     
     start_scene_pos: QPointF
+    
+    keep_aspect_ratio: bool = False

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from PySide6.QtCore import QPointF, QRectF, Qt, Signal
 from qtpy.QtGui import QColor, QPainter, QPen
-from qtpy.QtWidgets import QGraphicsObject, QWidget, QStyleOptionGraphicsItem
+from qtpy.QtWidgets import QApplication, QGraphicsObject, QWidget, QStyleOptionGraphicsItem
 
 from items.frames.resize_handles import ResizeHandle
 from items.enums.handle_position import HandlePosition
@@ -113,10 +113,16 @@ class SelectionFrame(QGraphicsObject):
         if self._owner is None:
             return
         
+        keep_aspect_ratio = bool(
+            QApplication.keyboardModifiers() 
+            & Qt.KeyboardModifier.ShiftModifier
+        )
+        
         self._resize_state = ResizeState(
             handle=handle,
             start_rect=self._owner.boundingRect(),
-            start_scene_pos=scene_pos
+            start_scene_pos=scene_pos,
+            keep_aspect_ratio=keep_aspect_ratio
         )
     
     def _onResizeMoved(
@@ -136,7 +142,8 @@ class SelectionFrame(QGraphicsObject):
             handle=handle,
             delta=delta,
             min_width=self.MIN_WIDTH,
-            min_height=self.MIN_HEIGHT
+            min_height=self.MIN_HEIGHT,
+            keep_aspect_ratio=self._resize_state.keep_aspect_ratio
         )
         
         self.resizeRequested.emit(rect)
