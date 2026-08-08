@@ -11,7 +11,7 @@ class EditorWindow(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Image Editor")
-        self.resize(1600,900)
+        self.resize(900, 600)
 
         self.scene = EditorScene()
         self.view = EditorView(self.scene)

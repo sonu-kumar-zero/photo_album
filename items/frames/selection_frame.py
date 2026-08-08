@@ -8,6 +8,8 @@ from items.frames.resize_handles import ResizeHandle
 from items.enums.handle_position import HandlePosition
 from items.interactions.resize_state import ResizeState
 
+from items.geometry.resize_algorithm import ResizeAlgorithm
+
 class SelectionFrame(QGraphicsObject):
     """
     Draws the selection border around a canvasItem.
@@ -36,10 +38,11 @@ class SelectionFrame(QGraphicsObject):
             handle = ResizeHandle(position=position, parent=self)
             self._handles[position] = handle
         
-        self._handles[HandlePosition.BOTTOM_RIGHT].resizeStarted.connect(self._onResizeStarted)
-        self._handles[HandlePosition.BOTTOM_RIGHT].resizeMoved.connect(self._onResizeMoved)
-        self._handles[HandlePosition.BOTTOM_RIGHT].resizeFinished.connect(self._onResizeFinished)
-        
+        for handle in self._handles.values():
+            handle.resizeStarted.connect(self._onResizeStarted)
+            handle.resizeMoved.connect(self._onResizeMoved)
+            handle.resizeFinished.connect(self._onResizeFinished)
+            
         self._resize_state: ResizeState | None = None
         self._owner = owner
         
@@ -124,21 +127,18 @@ class SelectionFrame(QGraphicsObject):
         if self._resize_state is None:
             return
         
-        if self._resize_state.handle != HandlePosition.BOTTOM_RIGHT:
-            return
-        
         delta = (
             scene_pos - self._resize_state.start_scene_pos
         )
         
-        rect = QRectF(self._resize_state.start_rect)
+        rect = ResizeAlgorithm.resize(
+            rect=self._resize_state.start_rect,
+            handle=handle,
+            delta=delta,
+            min_width=self.MIN_WIDTH,
+            min_height=self.MIN_HEIGHT
+        )
         
-        rect.setWidth(
-            max(self.MIN_WIDTH, rect.width() + delta.x())
-        )
-        rect.setHeight(
-            max(self.MIN_HEIGHT, rect.height() + delta.y())
-        )
         self.resizeRequested.emit(rect)
     
     def _onResizeFinished(self) -> None:
