@@ -2,9 +2,13 @@ from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QColor, QBrush, QPainter, QPen
 from PySide6.QtWidgets import QGraphicsObject
 
+from items.canvas_item import CanvasItem
+from items.clipboard.clipboard_data import CanvasItemData
 from items.placeholder_item import PlaceholderItem
 from utils.constants import PAGE_HEIGHT, PAGE_WIDTH
 from canvas.layer_item import LayerItem
+
+from items.item_factory import ItemFactory
 
 class PageItem(QGraphicsObject):
     """Represents a single editable page."""
@@ -134,3 +138,25 @@ class PageItem(QGraphicsObject):
     @property
     def overlayLayer(self) -> LayerItem:
         return self._overlay_layer
+
+    def layerByName(self, name: str) -> LayerItem | None:
+        """
+        Returns the layer with the given name, or None if not found.
+        """
+
+        for layer in self.childItems():
+            if isinstance(layer, LayerItem) and layer.name == name:
+                return layer
+
+        return None
+    
+    def createItemFromData(
+        self,
+        data: CanvasItemData,
+    ) -> CanvasItem:
+        
+        layer = self.layerByName(data.layer_name)
+        if layer is None:
+            raise ValueError(f"Layer '{data.layer_name}' not found")
+        
+        return ItemFactory.create(data, parent=layer)

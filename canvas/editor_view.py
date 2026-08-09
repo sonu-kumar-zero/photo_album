@@ -95,6 +95,31 @@ class EditorView(QGraphicsView):
     def keyPressEvent(self, event) -> None:
         
         if (
+            event.key() == Qt.Key.Key_C
+            and event.modifiers() 
+            & Qt.KeyboardModifier.ControlModifier
+        ): 
+            scene = self.scene()
+            if isinstance(scene, EditorScene):
+                scene.copySelectedItemsToClipboard()
+            
+            event.accept()
+            return
+        
+        if (
+            event.key() == Qt.Key.Key_V
+            and event.modifiers() 
+            & Qt.KeyboardModifier.ControlModifier
+        ): 
+            scene = self.scene()
+            if isinstance(scene, EditorScene):
+                scene.pasteFromClipboard()
+            
+            event.accept()
+            return
+        
+        
+        if (
             event.key() == Qt.Key.Key_D
             and event.modifiers() 
             & Qt.KeyboardModifier.ControlModifier

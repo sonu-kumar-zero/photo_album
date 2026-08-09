@@ -25,3 +25,7 @@ class LayerItem(QGraphicsObject):
 
     def paint(self, painter: QPainter, option, widget=None) -> None:
         pass
+    
+    @property
+    def name(self) -> str:
+        return self._name

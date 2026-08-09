@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 from qtpy.QtCore import QRectF, Qt
 from qtpy.QtGui import QColor, QFont, QPainter, QPainterPath, QPen
@@ -10,6 +11,7 @@ from qtpy.QtWidgets import (
 )
 
 from items.canvas_item import CanvasItem
+from items.clipboard.clipboard_data import CanvasItemData
 from utils.icon_cache import IconCache
 from items.layouts.placeholder_layout import PlaceholderLayout
 
@@ -229,11 +231,38 @@ class PlaceholderItem(CanvasItem):
         if parent is None:
             parent = self.parentItem()
         
-        duplicate = PlaceholderItem(
-            self.rect(),
+        return PlaceholderItem.fromData(
+            self.copyData(),
             parent=parent,
         )
         
-        self.copyTransformTo(duplicate)
+    
+    def itemType(self) -> str:
+        return "PlaceholderItem"
+    
+    def itemData(self) -> dict[str, Any]:
+        return {
+            "text": self._text,
+            "subtitle": self._subtitle,
+        }
+    
+    @classmethod
+    def fromData(
+        cls,
+        data: CanvasItemData,
+        parent: QGraphicsItem | None = None,    
+    )-> PlaceholderItem:
         
-        return duplicate
+        item = cls(
+            rect=QRectF(data.rect),
+            parent=parent,
+        )
+        
+        item.setPos(data.pos)
+        item.setRotation(data.rotation)
+        item.setScale(data.scale)
+        
+        item._text = data.data["text"]
+        item._subtitle = data.data["subtitle"]
+        
+        return item

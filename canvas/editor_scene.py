@@ -6,8 +6,12 @@ from qtpy.QtGui import QKeyEvent, QPainter
 
 from canvas.page_item import PageItem
 from items.canvas_item import CanvasItem
+from items.clipboard.clipboard_data import CanvasItemData
+from items.item_factory import ItemFactory
 from items.placeholder_item import PlaceholderItem
 from utils.constants import MARGIN
+
+from items.clipboard.editor_clipboard import EditorClipboard
 
 
 class EditorScene(QGraphicsScene):
@@ -18,6 +22,8 @@ class EditorScene(QGraphicsScene):
 
         self._page = PageItem()
         self.addItem(self._page)
+        
+        self._current_page = self._page
 
         margin = MARGIN
 
@@ -120,34 +126,36 @@ class EditorScene(QGraphicsScene):
     def copySelectedItemsToClipboard(self) -> None:
         selected_items = self.selectedItems()
         
-        if not selected_items:
-            return
-        
         if len(selected_items) != 1:
             return
         
         item = selected_items[0]
         
         if not isinstance(item, CanvasItem):
-            self._clipboard_item = None
+            EditorClipboard.clear()
             return
         
-        self._clipboard_item = item
+        EditorClipboard.setData(item.copyData())
 
-    def pasteFromClipboard(self, parent) -> None:
-        if self._clipboard_item is None:
+    def pasteFromClipboard(self) -> None:      
+        if not EditorClipboard.hasData():
             return
         
-        source = self._clipboard_item
+        data = EditorClipboard.data()
         
-        if source.scene() is None:
+        if not isinstance(data, CanvasItemData):
             return
         
-        duplicate = source.duplicate()
+        page = self._current_page
         
-        duplicate.setPos(
-            source.pos() + QPointF(20, 20)
-        )
+        if page is None:
+            return
+        
+        new_item = page.createItemFromData(data)
+        
+        new_item.setPos(
+            data.pos + QPointF(20, 20)
+        )        
         
         self.clearSelection()
-        duplicate.setSelected(True)
+        new_item.setSelected(True)

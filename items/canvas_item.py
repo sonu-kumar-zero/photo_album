@@ -5,7 +5,9 @@ from PySide6.QtCore import QRectF, QUuid
 from PySide6.QtGui import QColor, QPen, QPainter
 from PySide6.QtWidgets import QGraphicsItem, QGraphicsObject
 
+from canvas.layer_item import LayerItem
 from items.frames.selection_frame import SelectionFrame
+from items.clipboard.clipboard_data import CanvasItemData
 
 class CanvasItem(QGraphicsObject):
     """
@@ -130,3 +132,40 @@ class CanvasItem(QGraphicsObject):
         item.setRotation(self.rotation())
         item.setScale(self.scale())
         item.setTransformOriginPoint(self.transformOriginPoint())
+        
+    def copyData(self) -> CanvasItemData:
+        """
+        Copy the data of this item to a CanvasItemData object.
+        """
+        parent = self.parentItem()
+        
+        layer_name = ""
+        
+        if isinstance(parent, LayerItem):
+            layer_name = parent.name
+
+        return CanvasItemData(
+            item_type=self.itemType(),
+            layer_name=layer_name,
+            rect=self.rect(),
+            pos=self.pos(),
+            rotation=self.rotation(),
+            scale=self.scale(),
+            data=self.itemData(),
+        )
+    
+    def itemType(self) -> str:
+        """
+        Return the type of this item as a string.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} must implement itemType()"
+        )
+    
+    def itemData(self) -> dict[str, Any]:
+        """
+        Return the data of this item as a dictionary.
+        """
+        raise NotImplementedError(
+            f"{type(self).__name__} must implement itemData()"
+        )
