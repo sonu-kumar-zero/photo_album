@@ -1,6 +1,7 @@
 from PySide6.QtCore import QRectF, Qt
 from PySide6.QtGui import QColor, QBrush, QPainter, QPen
 from PySide6.QtWidgets import QGraphicsObject
+from typing import cast
 
 from items.canvas_item import CanvasItem
 from items.clipboard.clipboard_data import CanvasItemData
@@ -20,10 +21,10 @@ class PageItem(QGraphicsObject):
         super().__init__()
 
         self._rect = QRectF(
-            -self.WIDTH / 2,
-            -self.HEIGHT / 2,
-            self.WIDTH,
-            self.HEIGHT,
+            -cast(float, self.WIDTH) / 2,
+            -cast(float, self.HEIGHT) / 2,
+            cast(float, self.WIDTH),
+            cast(float, self.HEIGHT),
         )
         
         self._placeholder_layer = LayerItem(name="Placeholder", parent=self)
