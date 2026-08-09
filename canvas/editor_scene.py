@@ -85,3 +85,30 @@ class EditorScene(QGraphicsScene):
             if isinstance(item, CanvasItem):
                 self.removeItem(item)
                 item.deleteLater()
+    
+    def duplicateSelectedItems(self) -> None:
+        selected_items = self.selectedItems()
+        
+        if not selected_items:
+            return
+        
+        new_items: list[CanvasItem] = []
+        
+        for item in selected_items:
+            if not isinstance(item, CanvasItem):
+                continue
+            
+            duplicate = item.duplicate()
+            
+            duplicate.setPos(
+                item.pos() + QPointF(20, 20)
+            )
+            
+            self.addItem(duplicate)
+            
+            new_items.append(duplicate)
+            
+        self.clearSelection()
+        
+        for item in new_items:
+            item.setSelected(True)

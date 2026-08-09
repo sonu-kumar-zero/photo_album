@@ -224,3 +224,16 @@ class PlaceholderItem(CanvasItem):
             title_rect=title_rect,
             subtitle_rect=subtitle_rect,
         )
+        
+    def duplicate(self, parent: QGraphicsItem | None = None) -> PlaceholderItem:
+        if parent is None:
+            parent = self.parentItem()
+        
+        duplicate = PlaceholderItem(
+            self.rect(),
+            parent=parent,
+        )
+        
+        self.copyTransformTo(duplicate)
+        
+        return duplicate

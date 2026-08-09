@@ -107,3 +107,26 @@ class CanvasItem(QGraphicsObject):
         ):
             self._selection_frame.setVisible(bool(value))
         return super().itemChange(change, value)
+
+    def duplicate(
+        self,
+        parent: QGraphicsItem | None = None,
+    ) -> Any:
+        """
+        Create a duplicate of this item.
+        """
+        raise NotImplementedError(
+                    f"{type(self).__name__} must implement duplicate()"
+                )    
+    
+    def copyTransformTo(
+        self,
+        item: Any,
+    ) -> None:
+        """
+        Copy the transform of this item to another item.
+        """
+        item.setPos(self.pos())
+        item.setRotation(self.rotation())
+        item.setScale(self.scale())
+        item.setTransformOriginPoint(self.transformOriginPoint())

@@ -93,6 +93,19 @@ class EditorView(QGraphicsView):
         return super().mouseReleaseEvent(event)
     
     def keyPressEvent(self, event) -> None:
+        
+        if (
+            event.key() == Qt.Key.Key_D
+            and event.modifiers() 
+            & Qt.KeyboardModifier.ControlModifier
+        ): 
+            scene = self.scene()
+            if isinstance(scene, EditorScene):
+                scene.duplicateSelectedItems()
+            
+            event.accept()
+            return
+        
         if event.key() in {
             Qt.Key.Key_Delete,
             Qt.Key.Key_Backspace
