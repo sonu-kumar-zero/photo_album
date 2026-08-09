@@ -50,6 +50,10 @@ class CanvasItem(QGraphicsObject):
             True,
         )
 
+        self.setTransformOriginPoint(
+            self._rect.center()
+        )
+
         self.setAcceptHoverEvents(True)
 
         self._normal_pen = QPen(QColor(180, 180, 180), 1)
@@ -57,6 +61,8 @@ class CanvasItem(QGraphicsObject):
         
         self._selection_frame = SelectionFrame(owner=self)
         self._selection_frame.resizeRequested.connect(self.setRect)
+        
+        self._selection_frame.rotationRequested.connect(self.setRotation)
 
     @property
     def id(self) -> QUuid:
@@ -68,6 +74,9 @@ class CanvasItem(QGraphicsObject):
     def setRect(self, rect: QRectF) -> None:
         self.prepareGeometryChange()
         self._rect = QRectF(rect)
+        self.setTransformOriginPoint(
+            self._rect.center()
+        )
         self.update()
 
     def boundingRect(self) -> QRectF:
