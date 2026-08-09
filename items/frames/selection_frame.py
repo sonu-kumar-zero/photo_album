@@ -183,18 +183,12 @@ class SelectionFrame(QGraphicsObject):
         if parent is None:
             return
         
-        snap_rotation = bool(
-            QApplication.keyboardModifiers() 
-            & Qt.KeyboardModifier.ShiftModifier
-        )
-        
         center_scene = parent.mapToScene(parent.transformOriginPoint())
         
         self._rotation_state = RotationState(
             start_scene_pos=scene_pos,
             start_rotation=parent.rotation(),
             center_scene_pos=center_scene,
-            snap_rotation=snap_rotation
         )
     
     def _onRotationMoved(self, scene_pos: QPointF) -> None:
@@ -233,7 +227,12 @@ class SelectionFrame(QGraphicsObject):
             state.start_rotation + delta_angle
         )
         
-        if state.snap_rotation:
+        shift_pressed = bool(
+            QApplication.keyboardModifiers() 
+            & Qt.KeyboardModifier.ShiftModifier
+        )
+        
+        if shift_pressed:
             rotation = self._snapRotation(rotation)
         
         self.rotationRequested.emit(rotation)
