@@ -2,9 +2,10 @@
 from PySide6.QtWidgets import QGraphicsScene
 from PySide6.QtGui import QColor, QPen
 from qtpy.QtCore import QPointF, QRect, QRectF, Qt
-from qtpy.QtGui import QPainter
+from qtpy.QtGui import QKeyEvent, QPainter
 
 from canvas.page_item import PageItem
+from items.canvas_item import CanvasItem
 from utils.constants import MARGIN
 
 class EditorScene(QGraphicsScene):
@@ -76,3 +77,11 @@ class EditorScene(QGraphicsScene):
             radius,
             radius
         )
+        
+    def deleteSelectedItems(self) -> None:
+        selected_items = self.selectedItems()
+
+        for item in selected_items:
+            if isinstance(item, CanvasItem):
+                self.removeItem(item)
+                item.deleteLater()

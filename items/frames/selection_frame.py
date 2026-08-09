@@ -33,6 +33,11 @@ class SelectionFrame(QGraphicsObject):
     ):
         super().__init__(owner)
         self.setVisible(False)
+        
+        self.setAcceptedMouseButtons(
+            Qt.MouseButton.NoButton
+        )
+        
         self._pen = QPen(
             QColor(0, 0, 0, 255), 
             2

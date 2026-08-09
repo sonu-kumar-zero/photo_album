@@ -36,6 +36,16 @@ class PageItem(QGraphicsObject):
             ),
             self._placeholder_layer,
         )
+        
+        self._placeholder2 = PlaceholderItem(
+            QRectF(
+                -100,
+                50,
+                200,
+                150,
+            ),
+            self._placeholder_layer,
+        )
 
     def boundingRect(self) -> QRectF:
         """

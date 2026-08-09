@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QGraphicsScene, QGraphicsView
 from PySide6.QtCore import Qt, QPoint
 from qtpy.QtGui import QMouseEvent, QPainter, QWheelEvent
 
+from canvas.editor_scene import EditorScene
 from utils.constants import MIN_ZOOM, MAX_ZOOM, ZOOM_FACTOR
 
 class EditorView(QGraphicsView):
@@ -90,3 +91,17 @@ class EditorView(QGraphicsView):
             event.accept()
             return
         return super().mouseReleaseEvent(event)
+    
+    def keyPressEvent(self, event) -> None:
+        if event.key() in {
+            Qt.Key.Key_Delete,
+            Qt.Key.Key_Backspace
+        }:
+            scene = self.scene()
+            
+            if isinstance(scene, EditorScene):
+                scene.deleteSelectedItems()
+            event.accept()
+            return
+        
+        super().keyPressEvent(event)
