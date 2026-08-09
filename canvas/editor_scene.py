@@ -6,7 +6,9 @@ from qtpy.QtGui import QKeyEvent, QPainter
 
 from canvas.page_item import PageItem
 from items.canvas_item import CanvasItem
+from items.placeholder_item import PlaceholderItem
 from utils.constants import MARGIN
+
 
 class EditorScene(QGraphicsScene):
     """Graphics scene used by the editor."""
@@ -25,6 +27,8 @@ class EditorScene(QGraphicsScene):
             PageItem.WIDTH + margin * 2,
             PageItem.HEIGHT + margin * 2,
         )
+        
+        self._clipboard_item: CanvasItem | None = None
         
     @property
     def page(self) -> PageItem:
@@ -112,3 +116,38 @@ class EditorScene(QGraphicsScene):
         
         for item in new_items:
             item.setSelected(True)
+    
+    def copySelectedItemsToClipboard(self) -> None:
+        selected_items = self.selectedItems()
+        
+        if not selected_items:
+            return
+        
+        if len(selected_items) != 1:
+            return
+        
+        item = selected_items[0]
+        
+        if not isinstance(item, CanvasItem):
+            self._clipboard_item = None
+            return
+        
+        self._clipboard_item = item
+
+    def pasteFromClipboard(self, parent) -> None:
+        if self._clipboard_item is None:
+            return
+        
+        source = self._clipboard_item
+        
+        if source.scene() is None:
+            return
+        
+        duplicate = source.duplicate()
+        
+        duplicate.setPos(
+            source.pos() + QPointF(20, 20)
+        )
+        
+        self.clearSelection()
+        duplicate.setSelected(True)
