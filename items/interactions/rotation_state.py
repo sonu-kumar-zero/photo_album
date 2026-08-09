@@ -12,3 +12,4 @@ class RotationState:
     start_scene_pos: QPointF
     start_rotation: float
     center_scene_pos: QPointF
+    snap_rotation: bool = False

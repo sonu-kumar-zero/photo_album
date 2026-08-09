@@ -25,6 +25,8 @@ class SelectionFrame(QGraphicsObject):
     resizeRequested = Signal(QRectF)  # Signal emitted when the selection frame's rectangle changes
     rotationRequested = Signal(float)  # Signal emitted when the selection frame's rotation changes
     
+    ROTATION_SNAP_ANGLE = 15.0  # Angle in degrees for snapping rotation
+    
     def __init__(self,
         *,
         owner: QGraphicsObject | None = None
@@ -181,13 +183,18 @@ class SelectionFrame(QGraphicsObject):
         if parent is None:
             return
         
-        center_scene = parent.mapToScene(parent.transformOriginPoint())
+        snap_rotation = bool(
+            QApplication.keyboardModifiers() 
+            & Qt.KeyboardModifier.ShiftModifier
+        )
         
+        center_scene = parent.mapToScene(parent.transformOriginPoint())
         
         self._rotation_state = RotationState(
             start_scene_pos=scene_pos,
             start_rotation=parent.rotation(),
-            center_scene_pos=center_scene
+            center_scene_pos=center_scene,
+            snap_rotation=snap_rotation
         )
     
     def _onRotationMoved(self, scene_pos: QPointF) -> None:
@@ -226,9 +233,19 @@ class SelectionFrame(QGraphicsObject):
             state.start_rotation + delta_angle
         )
         
+        if state.snap_rotation:
+            rotation = self._snapRotation(rotation)
+        
         self.rotationRequested.emit(rotation)
         
     def _onRotationFinished(self) -> None:
         # Handle rotation finish logic here
         self._rotation_state = None
+    
+    def _snapRotation(self, rotation: float) -> float:
+        """
+        Snap the rotation to the nearest multiple of ROTATION_SNAP_ANGLE.
+        """
+        snapped_rotation = round(rotation / self.ROTATION_SNAP_ANGLE) * self.ROTATION_SNAP_ANGLE
+        return snapped_rotation
     
